@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- Meta / OG tags - config.js 값으로 script에서 동적 설정 -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="">
+  <meta property="og:description" content="">
+  <meta property="og:image" content="">
+  <meta name="description" content="">
+
+  <title>Wedding Invitation</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+
+  <style>
+    /* ── BGM 상단 바 ── */
+    .bgm-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 10px 16px;
+      pointer-events: none; /* 바 자체는 클릭 통과 */
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    .bgm-bar.visible {
+      opacity: 1;
+    }
+    .bgm-btn {
+      pointer-events: all;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 5px 12px 5px 8px;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.85);
+      font-family: 'Noto Serif KR', serif;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      transition: background 0.2s, color 0.2s;
+    }
+    .bgm-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+    .bgm-btn__icon {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+    /* 음표 회전 애니메이션 (재생 중일 때) */
+    .bgm-btn__icon.spinning {
+      animation: note-spin 3s linear infinite;
+    }
+    @keyframes note-spin {
+      0%   { transform: rotate(0deg); }
+      25%  { transform: rotate(10deg); }
+      75%  { transform: rotate(-10deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* ── 지도 이미지 full width ── */
+    .location__map {
+      width: 100%;
+      margin: 0 0 var(--spacing-lg) 0;
+      padding: 0;
+    }
+    .location__map-img {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      display: block;
+      border-radius: 12px;
+    }
+
+    /* ── Photo Share Section ── */
+    .photo-share__desc {
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.9;
+      color: var(--color-text-muted, #888);
+      margin-bottom: 28px;
+    }
+    .photo-share__qr {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .photo-share__qr img {
+      width: 180px;
+      height: 180px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .photo-share__hint {
+      font-size: 12px;
+      color: var(--color-text-muted, #aaa);
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ BGM ═══ -->
+  <audio id="bgm" loop preload="auto">
+    <source src="bgm.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- ═══ BGM 상단 바 ═══ -->
+  <div class="bgm-bar" id="bgmBar">
+    <button class="bgm-btn" id="bgmBtn" aria-label="음악 재생/정지">
+      <span class="bgm-btn__icon" id="bgmIcon">♪</span>
+      <span id="bgmLabel">음악 재생 중</span>
+    </button>
+  </div>
+
+  <!-- ═══ Curtain Opening Animation ═══ -->
+  <div id="curtain" class="curtain">
+    <div class="curtain__bg"></div>
+    <div class="curtain__content">
+      <div class="curtain__film-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="2" width="20" height="20" rx="2"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5"/><line x1="2" y1="8" x2="6" y2="8"/><line x1="18" y1="8" x2="22" y2="8"/><line x1="2" y1="16" x2="6" y2="16"/><line x1="18" y1="16" x2="22" y2="16"/></svg>
+      </div>
+      <p class="curtain__subtitle">Wedding Invitation</p>
+      <p class="curtain__names" id="curtainNames"></p>
+      <button class="curtain__btn" id="curtainBtn">초대장 열기</button>
+    </div>
+  </div>
+
+  <!-- ═══ Film Grain Overlay ═══ -->
+  <div class="film-grain" aria-hidden="true"></div>
+
+  <!-- ═══ Toast Notification ═══ -->
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <!-- ═══ Photo Viewer Modal ═══ -->
+  <div id="photoModal" class="photo-modal" role="dialog" aria-modal="true" aria-label="사진 보기">
+    <button class="photo-modal__close" id="modalClose" aria-label="닫기">&times;</button>
+    <button class="photo-modal__nav photo-modal__nav--prev" id="modalPrev" aria-label="이전 사진">&#8249;</button>
+    <button class="photo-modal__nav photo-modal__nav--next" id="modalNext" aria-label="다음 사진">&#8250;</button>
+    <div class="photo-modal__container" id="modalContainer">
+      <img class="photo-modal__img" id="modalImg" src="" alt="사진" draggable="false">
+    </div>
+    <div class="photo-modal__counter" id="modalCounter"></div>
+  </div>
+
+  <!-- ═══ Main Content ═══ -->
+  <main id="mainContent" class="main-content">
+
+    <!-- ─── Hero Section ─── -->
+    <section class="section hero" id="hero">
+      <div class="hero__vignette"></div>
+      <img class="hero__photo" id="heroPhoto" src="" alt="웨딩 사진" loading="eager">
+      <div class="hero__content">
+        <p class="hero__label animate-item" data-animate="fade-down">Wedding Invitation</p>
+        <h1 class="hero__names animate-item" data-animate="fade-up" id="heroNames"></h1>
+        <div class="hero__divider animate-item" data-animate="fade-in"></div>
+        <p class="hero__date animate-item" data-animate="fade-up" id="heroDate"></p>
+        <p class="hero__venue animate-item" data-animate="fade-up" id="heroVenue"></p>
+      </div>
+
+      <!-- Countdown -->
+      <div class="countdown animate-item" data-animate="fade-up" id="countdown">
+        <p class="countdown__label" id="countdownLabel"></p>
+        <div class="countdown__timer">
+          <div class="countdown__item">
+            <span class="countdown__number" id="countDays">0</span>
+            <span class="countdown__unit">일</span>
+          </div>
+          <div class="countdown__sep">:</div>
+          <div class="countdown__item">
+            <span class="countdown__number" id="countHours">0</span>
+            <span class="countdown__unit">시간</span>
+          </div>
+          <div class="countdown__sep">:</div>
+          <div class="countdown__item">
+            <span class="countdown__number" id="countMinutes">0</span>
+            <span class="countdown__unit">분</span>
+          </div>
+          <div class="countdown__sep">:</div>
+          <div class="countdown__item">
+            <span class="countdown__number" id="countSeconds">0</span>
+            <span class="countdown__unit">초</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Greeting Section ─── -->
+    <section class="section greeting" id="greeting">
+      <div class="section__inner">
+        <div class="ornament animate-item" data-animate="fade-in">&#9790;</div>
+        <h2 class="section__title animate-item" data-animate="fade-up" id="greetingTitle"></h2>
+        <p class="greeting__text animate-item" data-animate="fade-up" id="greetingContent"></p>
+        <div class="greeting__parents animate-item" data-animate="fade-up" id="greetingParents"></div>
+      </div>
+    </section>
+
+    <!-- ─── Calendar Section ─── -->
+    <section class="section calendar-section" id="calendarSection">
+      <div class="section__inner">
+        <h2 class="section__title animate-item" data-animate="fade-up">예식 일시</h2>
+        <div class="calendar animate-item" data-animate="scale-in" id="calendarGrid"></div>
+        <div class="calendar-actions animate-item" data-animate="fade-up">
+          <a class="btn btn--outline" id="googleCalBtn" href="#" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+            Google 캘린더
+          </a>
+          <button class="btn btn--outline" id="icsDownloadBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 14v4M10 16l2 2 2-2"/></svg>
+            Apple 캘린더
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Our Story Section ─── -->
+    <section class="section story" id="story">
+      <div class="section__inner">
+        <h2 class="section__title animate-item" data-animate="fade-up" id="storyTitle"></h2>
+        <p class="story__text animate-item" data-animate="fade-up" id="storyContent"></p>
+        <div class="story__photos" id="storyPhotos"></div>
+      </div>
+    </section>
+
+    <!-- ─── Gallery Section (Film Strip) ─── -->
+    <section class="section gallery" id="gallery">
+      <div class="section__inner">
+        <h2 class="section__title animate-item" data-animate="fade-up">갤러리</h2>
+        <div class="gallery__filmstrip">
+          <div class="gallery__grid" id="galleryGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Photo Share Section ─── -->
+    <section class="section photo-share" id="photoShare">
+      <div class="section__inner">
+        <div class="ornament animate-item" data-animate="fade-in">📷</div>
+        <h2 class="section__title animate-item" data-animate="fade-up">소중한 사진을 나눠주세요</h2>
+        <p class="photo-share__desc animate-item" data-animate="fade-up">
+          함께해 주신 순간을 담은 사진이 있다면<br>
+          아래 QR코드로 보내주시면 감사히 간직하겠습니다.
+        </p>
+        <div class="photo-share__qr animate-item" data-animate="scale-in">
+          <!-- ✅ 여기에 QR코드 이미지를 넣으세요 (qr.png 파일을 GitHub에 올리면 자동 적용) -->
+          <img src="qr.png" alt="사진 공유 QR코드">
+          <p class="photo-share__hint">QR코드를 스캔해 사진을 공유해 주세요</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Location Section ─── -->
+    <section class="section location" id="location">
+      <div class="section__inner">
+        <h2 class="section__title animate-item" data-animate="fade-up">오시는 길</h2>
+        <div class="location__info animate-item" data-animate="fade-up">
+          <p class="location__venue" id="locationVenue"></p>
+          <p class="location__hall" id="locationHall"></p>
+          <p class="location__address" id="locationAddress"></p>
+          <p class="location__tel" id="locationTel"></p>
+        </div>
+        <button class="btn btn--text location__copy animate-item" data-animate="fade-up" id="copyAddressBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          주소 복사
+        </button>
+        <div class="location__map animate-item" data-animate="scale-in">
+          <img class="location__map-img" id="locationMapImg" src="" alt="약도" loading="lazy">
+        </div>
+        <div class="location__links animate-item" data-animate="fade-up">
+          <a class="btn btn--kakao" id="kakaoMapBtn" href="#" target="_blank" rel="noopener">카카오맵</a>
+          <a class="btn btn--naver" id="naverMapBtn" href="#" target="_blank" rel="noopener">네이버지도</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Account Section (축의금) ─── -->
+    <section class="section account" id="account">
+      <div class="section__inner">
+        <h2 class="section__title animate-item" data-animate="fade-up">마음 전하실 곳</h2>
+        <p class="account__desc animate-item" data-animate="fade-up">축하의 마음을 담아 축의금을 전달해 보세요.</p>
+
+        <!-- Groom Accounts -->
+        <div class="accordion animate-item" data-animate="fade-up">
+          <button class="accordion__trigger" id="groomAccordion" aria-expanded="false">
+            <span class="accordion__icon">&#9834;</span>
+            <span>신랑측 계좌번호</span>
+            <svg class="accordion__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion__panel" id="groomAccordionPanel">
+            <div class="accordion__panel-inner" id="groomAccountList"></div>
+          </div>
+        </div>
+
+        <!-- Bride Accounts -->
+        <div class="accordion animate-item" data-animate="fade-up">
+          <button class="accordion__trigger" id="brideAccordion" aria-expanded="false">
+            <span class="accordion__icon">&#9834;</span>
+            <span>신부측 계좌번호</span>
+            <svg class="accordion__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion__panel" id="brideAccordionPanel">
+            <div class="accordion__panel-inner" id="brideAccountList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Footer ─── -->
+    <footer class="footer">
+      <p class="footer__text" id="footerText"></p>
+    </footer>
+
+  </main>
+
+  <script src="script.js"></script>
+
+  <!-- ═══ BGM Script ═══ -->
+  <script>
+    (function () {
+      const bgm     = document.getElementById('bgm');
+      const bgmBar  = document.getElementById('bgmBar');
+      const bgmBtn  = document.getElementById('bgmBtn');
+      const bgmIcon = document.getElementById('bgmIcon');
+      const bgmLabel= document.getElementById('bgmLabel');
+      let playing   = false;
+
+      bgm.volume = 0.45;
+
+      function setPlaying(state) {
+        playing = state;
+        if (state) {
+          bgmIcon.textContent = '♪';
+          bgmIcon.classList.add('spinning');
+          bgmLabel.textContent = '음악 재생 중';
+        } else {
+          bgmIcon.textContent = '♩';
+          bgmIcon.classList.remove('spinning');
+          bgmLabel.textContent = '음악 일시정지';
+        }
+      }
+
+      // "초대장 열기" 클릭 → 음악 시작 + 상단 바 표시
+      document.getElementById('curtainBtn').addEventListener('click', function () {
+        bgm.play().then(function () {
+          setPlaying(true);
+          // 커튼 사라진 뒤 바 표시
+          setTimeout(function () {
+            bgmBar.classList.add('visible');
+          }, 900);
+        }).catch(function () {
+          // 자동재생 차단된 경우 조용히 무시
+        });
+      });
+
+      // 재생/정지 토글
+      bgmBtn.addEventListener('click', function () {
+        if (playing) {
+          bgm.pause();
+          setPlaying(false);
+        } else {
+          bgm.play().then(function () { setPlaying(true); });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
