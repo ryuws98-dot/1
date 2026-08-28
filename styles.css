@@ -189,9 +189,7 @@ a {
 }
 
 .curtain__film-icon {
-  margin-bottom: var(--spacing-md);
-  opacity: 0.5;
-  color: var(--color-accent);
+
     display: none;
 }
 
