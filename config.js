@@ -39,7 +39,7 @@ const CONFIG = {
     date: "2026-10-10",
     time: "13:00",
     venue: "청주S가든",
-    hall: "웨딩홀 2층",
+    hall: "웨딩홀 3층",
     address: "충북 청주시 서원구 1순환로 854",
     tel: "043-292-8525",
     mapLinks: {
