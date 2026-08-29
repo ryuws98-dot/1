@@ -116,6 +116,13 @@
       border: 1px solid rgba(0,0,0,0.08);
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
+    .photo-share__qr a {
+      display: block;
+      pointer-events: auto;
+    }
+    .photo-share__qr img {
+      pointer-events: none; /* 이미지 자체는 저장 방지, 클릭은 부모 a가 처리 */
+    }
     .photo-share__hint {
       font-size: 12px;
       color: var(--color-text-muted, #aaa);
@@ -286,8 +293,10 @@
         </p>
         <div class="photo-share__qr animate-item" data-animate="scale-in">
           <!-- ✅ 여기에 QR코드 이미지를 넣으세요 (qr.png 파일을 GitHub에 올리면 자동 적용) -->
-          <img src="qr.png" alt="사진 공유 QR코드">
-          <p class="photo-share__hint">QR코드를 스캔해 사진을 올려주세요</p>
+          <a href="https://script.google.com/macros/s/AKfycbxAdphQEgDrj-GJSSxUu0b9QdFLnhfqDTdX1g2lx0Taas0x61BGbjV_S5gsjvd4gBzlwg/exec" target="_blank" rel="noopener">
+            <img src="qr.png" alt="사진 공유 QR코드">
+          </a>
+          <p class="photo-share__hint">QR코드를 스캔하거나 탭해서 사진을 올려주세요</p>
         </div>
       </div>
     </section>
