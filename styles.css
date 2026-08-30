@@ -1257,3 +1257,28 @@ a {
     transform: none !important;
   }
 }
+
+/* ═══════════════════════════════════════════
+   화환 사양 안내 (Notice Box)
+   ═══════════════════════════════════════════ */
+.notice__box {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 2.5rem 1.75rem;
+  text-align: center;
+}
+
+.notice__title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-accent-dark);
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.notice__desc {
+  font-size: 0.95rem;
+  line-height: 1.9;
+  color: var(--color-text-light);
+}
